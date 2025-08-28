@@ -13,9 +13,9 @@ This project aims to develop a simple-to-do application using Node.js, specifica
 
 ### Change Log
 
-| Date         | Version | Description                     | Author |
-| :----------- | :------ | :------------------------------ | :----- |
-| 2025-08-24   | 1.0     | Initial draft based on Project Brief. | John   |
+| Date | Version | Description | Author |
+| :--- | :--- | :--- | :--- |
+| 2025-08-25 | 1.0 | Initial draft based on Project Brief. | John |
 
 ## Requirements
 
@@ -24,8 +24,8 @@ This project aims to develop a simple-to-do application using Node.js, specifica
 *   **FR1:** Users must be able to create a private account, log in, and log out.
 *   **FR2:** The application must provide a single, clean user interface for a logged-in user to perform all core CRUD (Create, Read, Update, Delete) operations on their personal tasks.
 *   **FR3:** Each task must have a description, category (e.g., 'Academics', 'Work'), a deadline, and a status (e.g., 'To Do', 'Completed').
-*   **FR4:** The application must provide encouraging notifications/messages when a task is marked as complete, with a mechanism to manage notification frequency to prevent user fatigue.
-*   **FR5:** The application must display simple, clear, and scalable metrics like "Tasks completed today" or "Weekly completion percentage" tied to the user's account, ensuring performance and usability even with high task volumes.
+*   **FR4:** The application must provide encouraging notifications/messages when a task is marked as complete.
+*   **FR5:** The application must display simple, clear metrics like "Tasks completed today" or "Weekly completion percentage" tied to the user's account.
 
 ### Non-Functional Requirements
 
@@ -73,18 +73,18 @@ For the MVP, a **Monorepo** is assumed, containing both the frontend and backend
 
 ### Service Architecture: Monolith
 
-A **Monolithic** architecture is assumed for the MVP. The backend will serve a REST or GraphQL API. This approach is sufficient for the initial scope and allows for faster development.
+A **Monolithic** architecture is assumed for the MVP. The backend will serve a REST API. This approach is sufficient for the initial scope and allows for faster development.
 
 ### Testing Requirements: Unit + Integration
 
-For the MVP, **Unit and Integration Testing** are assumed to be the primary testing requirements. This provides a good balance of code quality and development speed. Further testing (e.g., E2E, manual) can be considered post-MVP.
+For the MVP, **Unit and Integration Testing** are assumed to be the primary testing requirements. This provides a good balance of code quality and development speed.
 
 ### Additional Technical Assumptions and Requests
 
-*   **Backend Technology:** Node.js, likely using the Express.js framework.
-*   **Frontend Technology:** A modern JavaScript framework such as React, Vue, or Svelte. The specific choice will be made by the development team, but it should support a dynamic user experience.
-*   **Database:** A database capable of handling user data and task relationships, such as PostgreSQL (relational) or MongoDB (NoSQL). The specific choice will be made by the Architect.
-*   **Hosting/Infrastructure:** A cloud-based platform like Vercel, Heroku, or a major cloud provider (AWS, GCP, Azure).
+*   **Backend Technology:** Python, using the **FastAPI** framework. The **uv** package manager will be used for managing Python dependencies.
+*   **Frontend Technology:** **Next.js** (a React framework) to create a dynamic and responsive user experience.
+*   **Database:** **SQLite** will be used for the MVP to simplify setup and development. A migration path to a more robust database like PostgreSQL can be considered post-MVP.
+*   **Hosting/Infrastructure:** A cloud-based platform like Vercel (ideal for Next.js) for the frontend, and a platform like Heroku or DigitalOcean App Platform for the backend.
 *   **Security:** Standard security practices must be implemented, including secure password hashing for user accounts and protection of all user data.
 
 ## Epic List
@@ -104,33 +104,49 @@ As a developer,
 I want to set up the project repository with appropriate `.gitignore` and initial folder structure,
 so that development can begin in an organized manner.
 
-**Acceptance Criteria:**
-1.  The `.gitignore` file is configured to ignore common development artifacts and sensitive files.
-2.  A basic project folder structure (e.g., `src`, `docs`, `tests`) is created.
-3.  The repository is initialized and ready for initial commit.
+**Acceptance Criteria (Refined):**
+1.  A `.gitignore` file exists at the root and is configured to ignore common Python (`__pycache__/`, `*.pyc`), Node.js (`node_modules/`, `.next/`), and OS-specific (`.DS_Store`, `Thumbs.db`) files.
+2.  The root directory contains `backend/`, `frontend/`, and `docs/` subdirectories.
+3.  The repository is initialized with Git, and a root-level `README.md` file has been created with the project title.
 
 ### Story 1.2: Basic Application Scaffolding
 
 As a developer,
-I want to scaffold a minimal Node.js application with a basic server and a health check endpoint,
+I want to scaffold a minimal FastAPI backend and a minimal Next.js frontend,
 so that we have a deployable and verifiable application shell.
 
-**Acceptance Criteria:**
-1.  A Node.js application is initialized (e.g., `package.json`).
-2.  A basic HTTP server is set up.
-3.  A `/health` endpoint is implemented that returns a 200 OK status.
-4.  The application can be started and stopped successfully.
+**Acceptance Criteria (Refined):**
+1.  The `frontend/` directory contains a default Next.js application, runnable via `npm run dev`.
+2.  The `backend/` directory contains a `main.py` with a basic FastAPI app and can be started using `uvicorn`. A `requirements.txt` (or `pyproject.toml`) managed by `uv` lists `fastapi` and `uvicorn`.
+3.  The FastAPI application implements a `/health` endpoint that returns a JSON response: `{"status": "ok"}`.
+4.  A developer can run both applications locally at the same time without port conflicts.
 
-### Story 1.3: Initial Deployment Configuration
+### Story 1.3: Initial Database Setup
+
+As a developer,
+I want to set up and initialize the SQLite database with the required tables,
+so that the application has a persistent data layer for future features.
+
+**Acceptance Criteria:**
+1.  The `sqlalchemy` library is added to the backend dependencies using `uv`.
+2.  The FastAPI application is configured to connect to a local SQLite database file (e.g., `simple-todo.db`).
+3.  A database initialization script or function exists that, when run, creates the database file and a `users` table.
+4.  The `users` table includes columns for at least `id` (primary key), `email` (unique), and `hashed_password`.
+
+### Story 1.4: Initial Deployment Configuration
 
 As a developer,
 I want to configure basic deployment settings for the minimal application,
 so that we can verify continuous integration and deployment processes.
 
-**Acceptance Criteria:**
-1.  A `Dockerfile` is created for containerization, or the application is configured for deployment via DigitalOcean App Platform's buildpack detection.
-2.  Basic CI/CD pipeline configuration is drafted to automatically deploy to a staging environment on DigitalOcean App Platform, with management facilitated by the DigitalOcean MCP Server upon code push to a designated branch.
-3.  The minimal application can be successfully deployed to a staging environment on DigitalOcean App Platform.
+**Acceptance Criteria (Refined):**
+1.  The `backend/` directory contains a multi-stage `Dockerfile` that installs dependencies using `uv` and runs the FastAPI application.
+2.  The project contains a GitHub Actions workflow file (e.g., `.github/workflows/deploy.yml`).
+3.  When code is pushed to the `main` branch, the GitHub Action automatically:
+    a. Builds the backend Docker image and pushes it to the DigitalOcean Container Registry.
+    b. Triggers a deployment of the new image to a DigitalOcean App Platform app.
+    c. Triggers a deployment of the Next.js frontend to a separate DigitalOcean App Platform app.
+4.  The deployed Next.js application successfully makes a request to the deployed backend's `/health` endpoint and displays a "Backend is healthy" message on the page.
 
 ## Epic 2: User Management
 
@@ -143,10 +159,11 @@ I want to create a secure account,
 so that I can access the application's features.
 
 **Acceptance Criteria:**
-1.  A user can register with a unique email and password.
-2.  Passwords are securely hashed and stored.
-3.  Upon successful registration, the user is authenticated and logged in.
-4.  Error messages are displayed for invalid or duplicate registration attempts.
+1.  A public API endpoint (e.g., `POST /register`) exists on the FastAPI backend that accepts an email and password.
+2.  The password is securely hashed (e.g., using `passlib`) before being stored in the `users` table.
+3.  The endpoint returns a success response upon creating a new user.
+4.  The endpoint returns a 400-level error if the email already exists or if the password doesn't meet basic strength requirements (e.g., minimum length).
+5.  A registration form is created in the Next.js frontend that successfully calls this endpoint.
 
 ### Story 2.2: User Login and Logout
 
@@ -155,10 +172,11 @@ I want to securely log in and log out of the application,
 so that I can access my personal data and protect my privacy.
 
 **Acceptance Criteria:**
-1.  A registered user can log in with their email and password.
-2.  Authentication tokens (e.g., JWT) are securely managed for session persistence.
-3.  A user can log out, invalidating their session.
-4.  Error messages are displayed for invalid login credentials.
+1.  A public API endpoint (e.g., `POST /token`) exists on the FastAPI backend that accepts an email and password.
+2.  Upon successful authentication, the endpoint returns a secure access token (e.g., JWT).
+3.  The endpoint returns a 401 Unauthorized error for invalid credentials.
+4.  A login form in the Next.js app calls this endpoint and securely stores the token upon success.
+5.  The Next.js app has a "Logout" button that clears the stored token, effectively ending the user's session.
 
 ### Story 2.3: Basic User Profile Management
 
@@ -167,10 +185,10 @@ I want to view and update my basic profile information (e.g., email, password),
 so that I can manage my account details.
 
 **Acceptance Criteria:**
-1.  A logged-in user can view their current email address.
-2.  A logged-in user can change their password.
-3.  A logged-in user can update their email address (with re-verification if necessary).
-4.  All profile updates are securely validated and stored.
+1.  A protected API endpoint (e.g., `GET /users/me`) exists that returns the current user's information based on their authentication token.
+2.  A protected API endpoint (e.g., `PUT /users/me/password`) allows the user to change their password after verifying their current password.
+3.  All protected endpoints return a 401 Unauthorized error if a valid token is not provided.
+4.  A basic "Profile" page exists in the Next.js app, displaying the user's email and providing a form to change their password.
 
 ## Epic 3: Core Task Management
 
@@ -183,11 +201,11 @@ I want to create new tasks with essential properties,
 so that I can add items to my to-do list.
 
 **Acceptance Criteria:**
-1.  A user can input a task description.
-2.  A user can select a category for the task (e.g., Academics, Work, Personal).
-3.  A user can set a deadline for the task.
-4.  A task is created with a default status (e.g., 'To Do').
-5.  The newly created task appears on the user's task list.
+1.  A protected API endpoint (e.g., `POST /tasks`) exists that accepts a description, category, and deadline.
+2.  The endpoint validates the input and creates a new task record in the database, linking it to the authenticated user.
+3.  The new task is assigned a default status of 'To Do'.
+4.  A form exists on the main dashboard of the Next.js app for creating a new task.
+5.  Submitting the form calls the API and the new task appears on the user's task list without needing a page refresh.
 
 ### Story 3.2: View Task List
 
@@ -196,9 +214,10 @@ I want to view a list of my tasks,
 so that I can see what I need to do.
 
 **Acceptance Criteria:**
-1.  A user can see a list of their tasks.
-2.  Each task in the list displays its description, category, deadline, and status.
-3.  Tasks are displayed in a clear and organized manner (e.g., by deadline or status).
+1.  A protected API endpoint (e.g., `GET /tasks`) exists that returns a list of all tasks belonging to the authenticated user.
+2.  The Next.js app fetches and displays this list on the main dashboard when the user is logged in.
+3.  Each task in the list clearly displays its description, category, deadline, and status.
+4.  The tasks are displayed in a clear and organized manner (e.g., sorted by deadline).
 
 ### Story 3.3: Update Task
 
@@ -207,11 +226,11 @@ I want to modify existing tasks,
 so that I can keep my to-do list accurate and up-to-date.
 
 **Acceptance Criteria:**
-1.  A user can edit the description of a task.
-2.  A user can change the category of a task.
-3.  A user can update the deadline of a task.
-4.  A user can change the status of a task to one of the following states: 'To Do', 'In Progress', 'Completed', or 'Archived'.
-5.  Changes to a task are saved and reflected in the task list.
+1.  A protected API endpoint (e.g., `PUT /tasks/{task_id}`) allows updating a task's description, category, deadline, and status.
+2.  The endpoint verifies that the task being updated belongs to the authenticated user.
+3.  The UI provides a way to edit a task (e.g., an "Edit" button that opens a modal).
+4.  The UI allows changing a task's status (e.g., a dropdown menu with 'To Do', 'In Progress', 'Completed').
+5.  Changes are saved and reflected in the task list.
 
 ### Story 3.4: Delete Task
 
@@ -220,9 +239,10 @@ I want to remove tasks from my list,
 so that I can keep my to-do list clean and relevant.
 
 **Acceptance Criteria:**
-1.  A user can select a task to delete.
-2.  The selected task is permanently removed from the user's task list.
-3.  A confirmation prompt is displayed before deletion to prevent accidental removal.
+1.  A protected API endpoint (e.g., `DELETE /tasks/{task_id}`) removes a task.
+2.  The endpoint verifies that the task being deleted belongs to the authenticated user.
+3.  The UI provides a "Delete" button for each task.
+4.  A confirmation prompt is displayed before the task is permanently deleted.
 
 ## Epic 4: Positive Motivation Engine
 
@@ -235,9 +255,10 @@ I want to receive encouraging messages when I complete a task,
 so that I feel motivated and acknowledge my progress.
 
 **Acceptance Criteria:**
-1.  Upon marking a task as 'Completed', an encouraging message is displayed to the user.
-2.  The messages are varied and positive in tone.
-3.  A mechanism exists to control the frequency or type of these messages (e.g., daily limit, opt-out for certain types).
+1.  When a task's status is updated to 'Completed' via the API, the backend response includes a randomized, positive message.
+2.  A list of positive messages is stored in the backend (e.g., in a simple list or configuration file).
+3.  The Next.js frontend displays this message to the user in a non-intrusive way (e.g., a temporary toast notification).
+4.  A mechanism exists to control the frequency of these messages (e.g., the backend only sends a message for the first 5 completed tasks per day).
 
 ### Story 4.2: Daily Task Completion Metrics
 
@@ -246,9 +267,10 @@ I want to see how many tasks I've completed today,
 so that I can track my daily productivity.
 
 **Acceptance Criteria:**
-1.  A clear display shows the number of tasks completed by the user for the current day.
-2.  The metric updates in real-time or near real-time upon task completion.
-3.  The display is easily accessible from the main dashboard.
+1.  A protected API endpoint (e.g., `GET /metrics/daily`) exists that returns the count of tasks completed by the user for the current day.
+2.  The calculation is accurate, considering the user's timezone if possible.
+3.  The Next.js app displays this number clearly on the main dashboard.
+4.  The metric updates in near real-time when a task is marked as complete.
 
 ### Story 4.3: Weekly Task Completion Percentage
 
@@ -257,7 +279,74 @@ I want to see my weekly task completion percentage,
 so that I can understand my productivity trends over time.
 
 **Acceptance Criteria:**
-1.  A clear display shows the percentage of tasks completed out of all tasks due or created within the current week.
-2.  The percentage is calculated accurately based on task status and relevant timeframes.
-3.  The display is easily accessible and visually clear.
-4.  The calculation is scalable to handle a growing number of tasks.
+1.  A protected API endpoint (e.g., `GET /metrics/weekly`) exists that returns the percentage of tasks completed within the current week.
+2.  The calculation is clearly defined (e.g., `(completed_tasks_this_week / total_tasks_due_this_week) * 100`).
+3.  The Next.js app displays this percentage in a visually clear way (e.g., with a progress bar or a chart).
+4.  The calculation is performant and scalable, even for users with a large number of tasks.
+
+## Checklist Results Report
+
+This report validates the "The Motivational To-Do App Product Requirements Document (PRD)" against the standard Product Manager checklist.
+
+### 1. Vision & Strategy
+
+*   **1.1. Clear Problem Statement:** **PASS**
+    *   *Rationale:* The "Background Context" section clearly defines the problem of students feeling overwhelmed and procrastinating, which is derived from the detailed Project Brief.
+*   **1.2. Defined Target Audience:** **PASS**
+    *   *Rationale:* The target audience of "busy college students" is implicitly defined and consistently referenced throughout the document's context and goals.
+*   **1.3. Clear & Measurable Goals:** **PASS**
+    *   *Rationale:* The "Goals" section outlines clear objectives. The source Project Brief contains specific KPIs (Task Completion Rate, DAU, Retention) that make these goals measurable.
+*   **1.4. Aligns with Business Objectives:** **PASS**
+    *   *Rationale:* The product goals directly support the business objectives of driving user adoption and validating the core "Positive Motivation Engine" feature.
+
+### 2. Requirements
+
+*   **2.1. Functional Requirements Defined:** **PASS**
+    *   *Rationale:* A dedicated section lists five clear, atomic Functional Requirements (FR1-FR5).
+*   **2.2. Non-Functional Requirements Defined:** **PASS**
+    *   *Rationale:* A dedicated section lists four clear Non-Functional Requirements (NFR1-NFR4), covering platform, performance, and security.
+*   **2.3. Requirements are Unambiguous:** **PASS**
+    *   *Rationale:* The requirements are specific and leave little room for interpretation, making them actionable for design and development.
+*   **2.4. Out of Scope is Clear:** **PASS**
+    *   *Rationale:* The scope is tightly defined by the included epics and stories. The source Project Brief also contains an explicit "Out of Scope for MVP" section.
+
+### 3. Features & User Experience
+
+*   **3.1. Feature Prioritization (MVP):** **PASS**
+    *   *Rationale:* The features are logically sequenced into four epics, representing a clear prioritization for an MVP build.
+*   **3.2. User Journeys Considered:** **PASS**
+    *   *Rationale:* The epics and stories follow a natural user journey: Setup -> Account Creation -> Core Functionality -> Unique Value Proposition.
+*   **3.3. High-Level UX/UI Goals Defined:** **PASS**
+    *   *Rationale:* The "User Interface Design Goals" section provides a clear vision for the UX, interaction paradigms, and core screens.
+
+### 4. Technical
+
+*   **4.1. Technical Assumptions Listed:** **PASS**
+    *   *Rationale:* A comprehensive "Technical Assumptions" section exists and was explicitly refined and confirmed with the user, detailing the full stack (Next.js, FastAPI, SQLite).
+*   **4.2. Constraints Identified:** **PASS**
+    *   *Rationale:* Technical constraints and preferences have been clearly documented, providing clear guidance for the Architect.
+*   **4.3. Dependencies Acknowledged:** **PASS**
+    *   *Rationale:* The story breakdown is sequential, ensuring dependencies (like database setup before user registration) are correctly ordered.
+
+### 5. Structure & Clarity
+
+*   **5.1. Logical Document Flow:** **PASS**
+    *   *Rationale:* The document follows a logical structure, moving from high-level strategic goals to detailed, actionable stories.
+*   **5.2. Epics & Stories are Well-defined:** **PASS**
+    *   *Rationale:* All epics have expanded goals, and all stories are written in the standard user story format with specific acceptance criteria.
+*   **5.3. Acceptance Criteria are Testable:** **PASS**
+    *   *Rationale:* The acceptance criteria were specifically refined to be measurable and testable, providing clear definitions of "done."
+*   **5.4. Change Log is Present:** **PASS**
+    *   *Rationale:* A change log is included at the beginning of the document.
+
+**Overall Assessment:** The PRD is comprehensive, well-structured, and ready for the next phase. It successfully translates the strategic goals from the Project Brief into an actionable plan for development.
+
+## Next Steps
+
+### UX Expert Prompt
+
+"Hi Sally, we have a complete Product Requirements Document (PRD) for 'The Motivational To-Do App'. Please review the 'User Interface Design Goals' and the user stories in the document to develop a front-end specification. Your focus should be on creating a clean, intuitive, and motivating user experience based on the vision laid out in the PRD."
+
+### Architect Prompt
+
+"Hi Winston, we have a complete Product Requirements Document (PRD) for 'The Motivational To-Do App'. Please review it, paying close attention to the 'Technical Assumptions', 'Functional Requirements', and the detailed user stories. Your task is to create a comprehensive architecture document that outlines the system design for the Next.js frontend, FastAPI backend, and SQLite database integration, ensuring it's scalable and secure."
